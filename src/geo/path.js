@@ -68,13 +68,6 @@ d3.geo.path = function() {
   return path.projection(d3.geo.albersUsa()).context(null);
 };
 
-function d3_geo_pathCircle(radius) {
-  return "m0," + radius
-      + "a" + radius + "," + radius + " 0 1,1 0," + (-2 * radius)
-      + "a" + radius + "," + radius + " 0 1,1 0," + (+2 * radius)
-      + "z";
-}
-
 function d3_geo_pathProjectStream(project) {
   var resample = d3_geo_resample(function(λ, φ) { return project([λ * d3_degrees, φ * d3_degrees]); });
   return function(stream) {
