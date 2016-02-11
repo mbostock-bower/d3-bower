@@ -3,84 +3,52 @@ function layout_force() {
   var force = {},
       event = d3.dispatch("tick"),
       size = {x: 1, y: 1},
-      alpha = .1,
-      nodeDistance = 60,
-      linkDistance = 30,
+      alpha = .5,
+      distance = 30,
       interval,
       nodes,
-      links;
-
-  // TODO
-  // slow the interval as the graph stabilizes
-  // allow the nodes to be dragged interactively
+      links,
+      distances;
 
   function tick() {
-    var n = nodes.length,
-        m = links.length,
+    var n = distances.length,
         i, // current index
-        j, // current index
         o, // current link
         s, // current source
         t, // current target
         l, // current distance
-        x,
-        y;
+        x, // x-distance
+        y; // y-distance
 
-    // repel nodes
+    // gauss-seidel relaxation
     for (i = 0; i < n; ++i) {
-      s = nodes[i];
-      for (j = i + 1; j < n; ++j) {
-        t = nodes[j];
-        x = t.x - s.x;
-        y = t.y - s.y;
-        l = Math.sqrt(x * x + y * y);
-        if (l < nodeDistance) {
-          l = alpha * (l - nodeDistance) / l;
-          x *= l;
-          y *= l;
-          if (s.fixed) {
-            if (t.fixed) continue;
-            t.x -= x;
-            t.y -= y;
-          } else if (t.fixed) {
-            s.x += x;
-            s.y += y;
-          } else {
-            s.x += x;
-            s.y += y;
-            t.x -= x;
-            t.y -= y;
-          }
-        }
-      }
-    }
-
-    // position constraint for links
-    for (i = 0; i < m; ++i) {
-      o = links[i];
+      o = distances[i];
       s = o.source;
       t = o.target;
       x = t.x - s.x;
       y = t.y - s.y;
-      l = Math.sqrt(x * x + y * y);
-      if (l <= 0) l = 0.01;
-      l = alpha * (l - linkDistance) / l;
-      x *= l;
-      y *= l;
-      if (s.fixed) {
-        if (t.fixed) continue;
-        t.x -= x;
-        t.y -= y;
-      } else if (t.fixed) {
-        s.x += x;
-        s.y += y;
-      } else {
-        s.x += x;
-        s.y += y;
-        t.x -= x;
-        t.y -= y;
+      if (l = Math.sqrt(x * x + y * y)) {
+        l = alpha / (o.distance * o.distance) * (l - distance * o.distance) / l;
+        x *= l;
+        y *= l;
+        if (s.fixed) {
+          if (t.fixed) continue;
+          t.x -= x;
+          t.y -= y;
+        } else if (t.fixed) {
+          s.x += x;
+          s.y += y;
+        } else {
+          s.x += x;
+          s.y += y;
+          t.x -= x;
+          t.y -= y;
+        }
       }
     }
+
+    // simulated annealing, basically
+    if ((alpha *= .99) < 1e-6) force.stop();
 
     event.tick.dispatch({type: "tick"});
   }
@@ -108,49 +76,116 @@ function layout_force() {
     return force;
   };
 
-  force.nodeDistance = function(d) {
-    if (!arguments.length) return nodeDistance;
-    nodeDistance = d;
-    return force;
-  };
-
-  force.linkDistance = function(d) {
-    if (!arguments.length) return linkDistance;
-    linkDistance = d;
+  force.distance = function(d) {
+    if (!arguments.length) return distance;
+    distance = d;
     return force;
   };
 
   force.start = function() {
     var i,
+        j,
+        k,
         n = nodes.length,
         m = links.length,
         w = size.x,
         h = size.y,
         o;
+
+    var paths = [];
     for (i = 0; i < n; ++i) {
       o = nodes[i];
       o.x = o.x || Math.random() * w;
       o.y = o.y || Math.random() * h;
       o.fixed = 0;
+      paths[i] = [];
+      for (j = 0; j < n; ++j) {
+        paths[i][j] = Infinity;
+      }
+      paths[i][i] = 0;
     }
+
     for (i = 0; i < m; ++i) {
       o = links[i];
+      paths[o.source][o.target] = 1;
+      paths[o.target][o.source] = 1;
       o.source = nodes[o.source];
       o.target = nodes[o.target];
     }
+
+    // Floyd-Warshall
+    for (k = 0; k < n; ++k) {
+      for (i = 0; i < n; ++i) {
+        for (j = 0; j < n; ++j) {
+          paths[i][j] = Math.min(paths[i][j], paths[i][k] + paths[k][j]);
+        }
+      }
+    }
+
+    distances = [];
+    for (i = 0; i < n; ++i) {
+      for (j = i + 1; j < n; ++j) {
+        distances.push({
+          source: nodes[i],
+          target: nodes[j],
+          distance: paths[i][j] * paths[i][j]
+        });
+      }
+    }
+
+    distances.sort(function(a, b) {
+      return a.distance - b.distance;
+    });
+
     if (interval) clearInterval(interval);
     interval = setInterval(tick, 24);
     return force;
   };
 
   force.resume = function() {
-    if (interval) clearInterval(interval);
-    interval = setInterval(tick, 24);
+    alpha = .1;
+    if (!interval) interval = setInterval(tick, 24);
     return force;
   };
 
   force.stop = function() {
     interval = clearInterval(interval);
+    return force;
+  };
+
+  // use `node.call(force.drag)` to make nodes draggable
+  force.drag = function() {
+    var node, element;
+
+    this
+      .on("mouseover", function(d) { d.fixed = true; })
+      .on("mouseout", function(d) { if (d != node) d.fixed = false; })
+      .on("mousedown", mousedown);
+
+    d3.select(window)
+      .on("mousemove", mousemove)
+      .on("mouseup", mouseup);
+
+    function mousedown(d) {
+      (node = d).fixed = true;
+      element = this;
+      d3.event.preventDefault();
+    }
+
+    function mousemove() {
+      if (!node) return;
+      var m = d3.svg.mouse(element);
+      node.x = m[0];
+      node.y = m[1];
+      force.resume(); // restart annealing
+    }
+
+    function mouseup() {
+      if (!node) return;
+      mousemove();
+      node = element = null;
+    }
+
     return force;
   };
 
