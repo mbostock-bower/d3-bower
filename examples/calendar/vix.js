@@ -8,18 +8,18 @@ d3.csv("vix.csv", function(csv) {
       .domain(d3.values(data))
       .range(d3.range(9).reverse());
 
-  var w = 710,
+  var w = 960,
       pw = 14,
       z = ~~((w - pw * 2) / 53),
       ph = z >> 1,
-      h = z * 7 + ph * 2;
+      h = z * 7;
 
   var vis = d3.select("#chart")
     .selectAll("svg")
       .data(d3.range(1993, 2011))
     .enter().append("svg:svg")
       .attr("width", w)
-      .attr("height", h)
+      .attr("height", h + ph * 2)
       .attr("class", "RdYlGn")
     .append("svg:g")
       .attr("transform", "translate(" + pw + "," + ph + ")");
