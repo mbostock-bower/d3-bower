@@ -59,9 +59,9 @@ d3.layout.chord = function() {
     x = 0, i = -1; while (++i < n) {
       x0 = x, j = -1; while (++j < n) {
         var di = groupIndex[i],
-            dj = subgroupIndex[i][j],
+            dj = subgroupIndex[di][j],
             v = matrix[di][dj];
-        subgroups[di + "-" + dj] = {
+        subgroups[i + "-" + j] = {
           "index": di,
           "subindex": dj,
           "startAngle": x,
