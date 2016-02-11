@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <title>Moiré Patterns</title>
-    <script type="text/javascript" src="../../d3.js"></script>
+    <script type="text/javascript" src="../../d3.v2.js"></script>
     <style type="text/css">
 
 circle {
@@ -40,7 +40,7 @@ var circle = svg.append("g")
     .attr("r", function(d) { return d * 3; });
 
 svg.on("mousemove", function() {
-  var mouse = d3.svg.mouse(this),
+  var mouse = d3.mouse(this),
       r = (Math.sqrt(mouse[0]) + 10) / 10;
 
   circle

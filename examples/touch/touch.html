@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1"/>
-    <script type="text/javascript" src="../../d3.js"></script>
+    <script type="text/javascript" src="../../d3.v2.js"></script>
     <style type="text/css">
 
 html, body {
@@ -38,7 +38,7 @@ function touch() {
   d3.event.preventDefault();
 
   var circle = svg.selectAll("circle.touch")
-      .data(d3.svg.touches(svg.node()), function(d) { return d.identifier; })
+      .data(d3.touches(svg.node()), function(d) { return d.identifier; })
       .attr("cx", function(d) { return d[0]; })
       .attr("cy", function(d) { return d[1]; });
 
