@@ -9,6 +9,7 @@ LOCALE ?= en_US
 all: \
 	d3.v2.js \
 	d3.v2.min.js \
+	component.json \
 	package.json
 
 # Modify this rule to build your own custom release.
@@ -237,10 +238,15 @@ d3%.js: Makefile
 	cat $(filter %.js,$^) | $(JS_BEAUTIFIER) > $@
 	@chmod a-w $@
 
+component.json: src/component.js
+	@rm -f $@
+	node src/component.js > $@
+	@chmod a-w $@
+
 package.json: src/package.js
 	@rm -f $@
 	node src/package.js > $@
 	@chmod a-w $@
 
 clean:
-	rm -f d3*.js package.json
+	rm -f d3*.js package.json component.json
