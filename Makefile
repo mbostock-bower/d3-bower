@@ -136,7 +136,9 @@ d3.geom.js: \
 tests: \
 	tests/test-append.test \
 	tests/test-attr.test \
-	tests/test-format.test
+	tests/test-format.test \
+	tests/test-transition.test \
+	tests/test-scale-linear.test
 
 %.min.js: %.js Makefile
 	@rm -f $@
