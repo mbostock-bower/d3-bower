@@ -17,6 +17,12 @@ console.log(JSON.stringify({
     "name": "Mike Bostock",
     "url": "http://bost.ocks.org/mike"
   },
+  "contributors": [
+    {
+      "name": "Jason Davies",
+      "url": "http://jasondavies.com"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mbostock/d3.git"
@@ -39,5 +45,11 @@ console.log(JSON.stringify({
   },
   "scripts": {
     "test": "node_modules/.bin/vows; echo"
-  }
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/mbostock/d3/blob/master/LICENSE"
+    }
+  ]
 }, null, 2));

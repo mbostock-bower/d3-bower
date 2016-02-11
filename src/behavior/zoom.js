@@ -4,6 +4,7 @@ import "../event/event";
 import "../event/mouse";
 import "../event/touches";
 import "../selection/selection";
+import "behavior";
 
 d3.behavior.zoom = function() {
   var translate = [0, 0],
@@ -115,12 +116,7 @@ d3.behavior.zoom = function() {
     function mouseup() {
       if (moved) d3_eventCancel();
       w.on("mousemove.zoom", null).on("mouseup.zoom", null);
-      if (moved && d3.event.target === eventTarget) w.on("click.zoom", click, true);
-    }
-
-    function click() {
-      d3_eventCancel();
-      w.on("click.zoom", null);
+      if (moved && d3.event.target === eventTarget) d3_eventSuppress(w, "click.zoom");
     }
   }
 
