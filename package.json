@@ -1,6 +1,6 @@
 {
   "name": "d3",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "A small, free JavaScript library for manipulating documents based on data.",
   "keywords": [
     "dom",
@@ -21,7 +21,7 @@
   },
   "main": "index.js",
   "dependencies": {
-    "jsdom": "0.2.10"
+    "jsdom": "0.2.12"
   },
   "devDependencies": {
     "uglify-js": "1.2.3",
