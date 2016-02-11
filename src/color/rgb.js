@@ -127,7 +127,8 @@ function d3_rgb_hsl(r, g, b) {
     else h = (r - g) / d + 4;
     h *= 60;
   } else {
-    s = h = 0;
+    h = NaN;
+    s = l > 0 && l < 1 ? 0 : h;
   }
   return d3_hsl(h, s, l);
 }
